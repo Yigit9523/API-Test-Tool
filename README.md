@@ -8,6 +8,8 @@ Modern ve kullanıcı dostu bir API test aracı. Bu araç ile HTTP isteklerini k
 - JSON formatında header ve body gönderme
 - Temiz ve modern arayüz
 - Gerçek zamanlı yanıt görüntüleme
+- İstek geçmişi
+- Yanıt kopyalama ve indirme
 
 ## Kurulum
 
@@ -31,6 +33,14 @@ python app.py
 4. Gerekirse Request Body ekleyin (JSON formatında)
 5. "Send Request" butonuna tıklayın
 6. Yanıtı alt kısımda görüntüleyin
+
+## Özellikler
+
+- Modern ve kullanıcı dostu arayüz
+- İstek geçmişi saklama
+- Yanıtları kopyalama ve indirme
+- İstekleri JSON olarak kaydetme
+- Renkli HTTP metod gösterimi
 
 ## Telif Hakkı
 
