@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .transition-height { transition: max-height 0.3s ease-out; }
+        .method-get { background-color: #10B981; }
+        .method-post { background-color: #3B82F6; }
+        .method-put { background-color: #F59E0B; }
+        .method-delete { background-color: #EF4444; }
+        .gradient-background {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="gradient-background text-white p-4 shadow-lg mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold"><i class="fas fa-code mr-2"></i>API Test Tool</h1>
+            <div class="flex space-x-4">
+                <button onclick="clearAll()" class="flex items-center px-3 py-2 rounded hover:bg-white/20 transition-colors">
+                    <i class="fas fa-broom mr-2"></i> Clear All
+                </button>
+                <button onclick="saveRequest()" class="flex items-center px-3 py-2 rounded hover:bg-white/20 transition-colors">
+                    <i class="fas fa-save mr-2"></i> Save
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto px-4">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 space-y-6">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="method">
+                    HTTP Method
+                </label>
+                <select id="method" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="url">
+                    URL
+                </label>
+                <input type="text" id="url" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://api.example.com/endpoint">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="headers">
+                    Headers (JSON)
+                </label>
+                <textarea id="headers" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows="3" placeholder='{"Content-Type": "application/json"}'></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="body">
+                    Request Body (JSON)
+                </label>
+                <textarea id="body" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" rows="4" placeholder='{"key": "value"}'></textarea>
+            </div>
+
+            <div class="flex space-x-4">
+                <button onclick="sendRequest()" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Send Request
+                </button>
+                <button onclick="addToHistory()" class="bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center">
+                    <i class="fas fa-history"></i>
+                </button>
+            </div>
+
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-700">Response</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="copyResponse()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button onclick="downloadResponse()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="mb-2">
+                        <span class="font-bold">Status:</span>
+                        <span id="status" class="ml-2">-</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="font-bold">Headers:</span>
+                        <pre id="responseHeaders" class="mt-2 bg-gray-200 p-2 rounded overflow-x-auto">-</pre>
+                    </div>
+                    <div>
+                        <span class="font-bold">Body:</span>
+                        <pre id="response" class="mt-2 bg-gray-200 p-2 rounded overflow-x-auto">-</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-700 flex items-center">
+                <i class="fas fa-history mr-2"></i> Request History
+            </h2>
+            <div id="historyList" class="space-y-4">
+                <!-- History items will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-8 py-6 px-4 gradient-background text-white">
+        <div class="container mx-auto text-center">
+            <p class="text-sm opacity-90">
+                <i class="far fa-copyright mr-1"></i> 2025 API Test Tool. Tüm hakları saklıdır.
+            </p>
+            <p class="text-xs opacity-75 mt-1">
+                Bu yazılım telif hakkı yasaları ve uluslararası anlaşmalar ile korunmaktadır.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let requestHistory = [];
+
+        function clearAll() {
+            document.getElementById('url').value = '';
+            document.getElementById('headers').value = '';
+            document.getElementById('body').value = '';
+            document.getElementById('method').value = 'GET';
+            document.getElementById('status').textContent = '-';
+            document.getElementById('responseHeaders').textContent = '-';
+            document.getElementById('response').textContent = '-';
+        }
+
+        function saveRequest() {
+            const data = {
+                method: document.getElementById('method').value,
+                url: document.getElementById('url').value,
+                headers: document.getElementById('headers').value,
+                body: document.getElementById('body').value
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'request-config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyResponse() {
+            const response = document.getElementById('response').textContent;
+            navigator.clipboard.writeText(response);
+            alert('Response copied to clipboard!');
+        }
+
+        function downloadResponse() {
+            const response = document.getElementById('response').textContent;
+            const blob = new Blob([response], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'response.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function addToHistory() {
+            const method = document.getElementById('method').value;
+            const url = document.getElementById('url').value;
+            const timestamp = new Date().toLocaleTimeString();
+
+            const historyItem = {
+                method,
+                url,
+                timestamp,
+                headers: document.getElementById('headers').value,
+                body: document.getElementById('body').value
+            };
+
+            requestHistory.unshift(historyItem);
+            if (requestHistory.length > 10) requestHistory.pop();
+            updateHistoryUI();
+        }
+
+        function updateHistoryUI() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = requestHistory.map((item, index) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                     onclick="loadHistoryItem(${index})">
+                    <div class="flex items-center space-x-3">
+                        <span class="px-2 py-1 rounded text-white text-sm method-${item.method.toLowerCase()}">${item.method}</span>
+                        <span class="text-gray-600 truncate max-w-md">${item.url}</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">${item.timestamp}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryItem(index) {
+            const item = requestHistory[index];
+            document.getElementById('method').value = item.method;
+            document.getElementById('url').value = item.url;
+            document.getElementById('headers').value = item.headers;
+            document.getElementById('body').value = item.body;
+        }
+
+        async function sendRequest() {
+            const method = document.getElementById('method').value;
+            const url = document.getElementById('url').value;
+            let headers = {};
+            let body = {};
+
+            try {
+                const headersText = document.getElementById('headers').value;
+                if (headersText) {
+                    headers = JSON.parse(headersText);
+                }
+            } catch (e) {
+                alert('Invalid headers JSON format');
+                return;
+            }
+
+            try {
+                const bodyText = document.getElementById('body').value;
+                if (bodyText) {
+                    body = JSON.parse(bodyText);
+                }
+            } catch (e) {
+                alert('Invalid body JSON format');
+                return;
+            }
+
+            try {
+                const response = await fetch('/test-api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method,
+                        url,
+                        headers,
+                        body
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('status').textContent = data.status_code;
+                document.getElementById('responseHeaders').textContent = JSON.stringify(data.headers, null, 2);
+                document.getElementById('response').textContent = data.response;
+                addToHistory();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
